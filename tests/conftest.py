@@ -1,14 +1,15 @@
 # tests/conftest.py
-try:
-    from dotenv import load_dotenv
-    load_dotenv()   # no-op on Jenkins (no .env); useful locally
-except Exception:
-    pass
-
 import os
 import sys
 import pytest
 from playwright.sync_api import sync_playwright
+
+# (optional) dotenv load wrapped in try/except if you want
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if ROOT_DIR not in sys.path:
@@ -17,13 +18,25 @@ if ROOT_DIR not in sys.path:
 from config import CONFIG
 from pages.login_page import LoginPage
 
+def _select_engine(p, name: str):
+    name = (name or "chromium").lower()
+    if name == "chromium":
+        return p.chromium
+    if name == "firefox":
+        return p.firefox
+    if name == "webkit":
+        return p.webkit
+    raise ValueError(f"Unsupported BROWSER='{name}'. Use chromium|firefox|webkit")
+
 @pytest.fixture(scope="session")
 def browser():
     headed = os.getenv("HEADED", "false").lower() == "true"
+    browser_name = os.getenv("BROWSER", "chromium")
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=not headed)
-        yield browser
-        browser.close()
+        engine = _select_engine(p, browser_name)
+        br = engine.launch(headless=not headed)
+        yield br
+        br.close()
 
 @pytest.fixture
 def page(browser):
