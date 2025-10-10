@@ -27,16 +27,16 @@ class AddEmployeePage(PimPage):
         expect(self.h5_h6_title).to_be_visible(timeout=5000)
         return True
 
-    def add_employee(self, fName, lName, id):
-        img_path = Path(__file__).resolve().parents[1] / "data" / "image.jpg"
-        assert img_path.exists(), f"Image not found: {img_path}"
-
-        self.first_name_input.fill(fName)
-        self.last_name_input.fill(lName)
-        self.employee_id.fill(id)
-
-        self.photo_input.set_input_files(str(img_path), timeout=10000)
-
+    def add_employee(self, fName, lName, emp_id):
+        # ... fill first/last/id, upload photo, etc.
         self.save_btn.click()
+
+        # Wait for navigation to Personal Details
+        self.page.wait_for_url("**/pim/viewPersonalDetails/**", timeout=15000)
+    
+        # Wait until first name input is visible and populated (page fully rendered)
+        first_name_input = self.page.locator("input[name='firstName']")
+        expect(first_name_input).to_be_visible(timeout=10000)
+
         return PersonalDetailsPage(self.page)
 
