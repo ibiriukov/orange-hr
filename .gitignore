@@ -1,0 +1,26 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtualenv
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+
+# Pytest / Playwright artifacts
+.pytest_cache/
+playwright-report/
+test-results/
+allure-results/
+allure-report/
+report.html
+
+# Local config
+.env
+*.local
+temp_shared_state.json
