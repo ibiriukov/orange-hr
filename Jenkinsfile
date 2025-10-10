@@ -42,11 +42,8 @@ pipeline {
         ]) {
           bat """
             call .venv\\Scripts\\activate
-            rem Pass headed/headless via env var (read in conftest.py)
             set HEADED=%HEADED%
             echo HEADED=%HEADED%
-
-            rem Run tests
             pytest -v --junitxml=test-results\\junit.xml ^
                    --html=report.html --self-contained-html
           """
@@ -57,7 +54,7 @@ pipeline {
 
   post {
     always {
-      rem Ensure junit.xml exists so the publisher never fails
+      // Ensure junit.xml exists so the publisher never fails
       bat 'if not exist test-results mkdir test-results & if not exist test-results\\junit.xml type NUL > test-results\\junit.xml'
       junit 'test-results/junit.xml'
       archiveArtifacts artifacts: 'report.html,test-results/**', fingerprint: true, onlyIfSuccessful: false
