@@ -9,7 +9,7 @@ from utils.common_methods import get_text_of_element, element_loaded, is_element
 class EmployeeListPage(PimPage):
     def __init__(self, page: Page):
         super().__init__(page)
-        self.h5_h6_title = page.locator("//div[@class='oxd-layout-context']//h5 | //div[@class='orangehrm-card-container']/hr/preceding-sibling::*")
+        self.h5_h6_title = page.locator("//div[@class='oxd-layout-context']//h5")
         self.employee_name = page.locator("input[placeholder='Type for hints...']").nth(0)
         self.search_btn = page.locator("//button[@type='submit']")
         self.table_row = page.locator("//div[@class= 'oxd-table-card']")
@@ -22,6 +22,7 @@ class EmployeeListPage(PimPage):
         self.deletion_confirm_modal = page.locator("//div[@role='document']")
 
     def get_text_of_h5_or_h6_title(self):
+        element_loaded(self.h5_h6_title)
         return get_text_of_element(self.h5_h6_title)
 
     def set_employee_name(self, name):

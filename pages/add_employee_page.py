@@ -5,13 +5,13 @@ from playwright.sync_api import Page, expect
 
 from pages.personal_details_page import PersonalDetailsPage
 from pages.pim_page import PimPage
-from utils.common_methods import get_text_of_element
+from utils.common_methods import get_text_of_element, element_loaded
 
 
 class AddEmployeePage(PimPage):
     def __init__(self, page: Page):
         super().__init__(page)
-        self.h5_h6_title = page.locator("//div[@class='oxd-layout-context']//h6 | //div[@class='oxd-layout-context']//h5")
+        self.h5_h6_title = page.locator(" //div[@class='orangehrm-card-container']//h6")
         self.first_name_input = page.get_by_placeholder("First Name")
         self.last_name_input = page.get_by_placeholder("Last Name")
         self.save_btn = page.get_by_role("button", name="save")
@@ -20,6 +20,7 @@ class AddEmployeePage(PimPage):
         self.photo_input = self.photo_container.locator("input[type='file']")
 
     def get_text_of_h5_or_h6_title(self):
+        element_loaded(self.h5_h6_title)
         return get_text_of_element(self.h5_h6_title)
 
     def title_is_loaded(self) -> bool:
