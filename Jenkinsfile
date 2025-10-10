@@ -2,7 +2,6 @@ pipeline {
   agent any
 
   parameters {
-    // Unchecked = headless; Checked = headed
     booleanParam(name: 'HEADED', defaultValue: false, description: 'Run browser in headed mode')
   }
 
@@ -12,18 +11,13 @@ pipeline {
     stage('Setup'){
       steps {
         bat '''
-          echo ==== Create venv & install pip ====
+          echo ==== Create venv and install pip ====
           py -3 -m venv .venv
           call .venv\\Scripts\\activate
           pip install --upgrade pip wheel
 
-          echo ==== Install project requirements (fallback if absent) ====
-          if exist requirements.txt (
-            pip install -r requirements.txt
-          ) else (
-            echo NO requirements.txt found, installing basics
-            pip install pytest playwright pytest-html
-          )
+          echo ==== Install requirements ====
+          pip install -r requirements.txt
 
           echo ==== Install Playwright browsers ====
           py -3 -m playwright install
@@ -54,7 +48,7 @@ pipeline {
 
   post {
     always {
-      // Ensure junit.xml exists so the publisher never fails
+      // Make sure a junit file exists so publishing never breaks the build display
       bat 'if not exist test-results mkdir test-results & if not exist test-results\\junit.xml type NUL > test-results\\junit.xml'
       junit 'test-results/junit.xml'
       archiveArtifacts artifacts: 'report.html,test-results/**', fingerprint: true, onlyIfSuccessful: false
