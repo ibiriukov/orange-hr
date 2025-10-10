@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   parameters {
-    // ✓ unchecked = headless (CI default), checked = headed (show UI)
+    // Unchecked = headless; Checked = headed
     booleanParam(name: 'HEADED', defaultValue: false, description: 'Run browser in headed mode')
   }
 
@@ -12,10 +12,20 @@ pipeline {
     stage('Setup'){
       steps {
         bat '''
+          echo ==== Create venv & install pip ====
           py -3 -m venv .venv
           call .venv\\Scripts\\activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install --upgrade pip wheel
+
+          echo ==== Install project requirements (fallback if absent) ====
+          if exist requirements.txt (
+            pip install -r requirements.txt
+          ) else (
+            echo NO requirements.txt found, installing basics
+            pip install pytest playwright pytest-html
+          )
+
+          echo ==== Install Playwright browsers ====
           py -3 -m playwright install
         '''
       }
@@ -32,10 +42,12 @@ pipeline {
         ]) {
           bat """
             call .venv\\Scripts\\activate
-            set "HEAD_FLAG="
-            if /I "%HEADED%"=="true" set "HEAD_FLAG=--headed"
-            echo HEADED=%HEADED%  (HEAD_FLAG=%HEAD_FLAG%)
-            pytest -v %HEAD_FLAG% --junitxml=test-results\\junit.xml ^
+            rem Pass headed/headless via env var (read in conftest.py)
+            set HEADED=%HEADED%
+            echo HEADED=%HEADED%
+
+            rem Run tests
+            pytest -v --junitxml=test-results\\junit.xml ^
                    --html=report.html --self-contained-html
           """
         }
@@ -45,6 +57,8 @@ pipeline {
 
   post {
     always {
+      rem Ensure junit.xml exists so the publisher never fails
+      bat 'if not exist test-results mkdir test-results & if not exist test-results\\junit.xml type NUL > test-results\\junit.xml'
       junit 'test-results/junit.xml'
       archiveArtifacts artifacts: 'report.html,test-results/**', fingerprint: true, onlyIfSuccessful: false
     }
