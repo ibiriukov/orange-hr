@@ -2,14 +2,16 @@ pipeline {
   agent any
 
   parameters {
+    // Unchecked = headless; Checked = headed (UI)
     booleanParam(name: 'HEADED', defaultValue: false, description: 'Run browser in headed mode')
-    choice(name: 'BROWSER', choices: ['chromium','firefox','webkit'], description: 'Playwright browser')  // ← NEW
+    // Choose Playwright engine
+    choice(name: 'BROWSER', choices: ['chromium','firefox','webkit'], description: 'Playwright browser')
   }
 
   stages {
     stage('Checkout'){ steps { checkout scm } }
 
-    stage('Setup'){
+    stage('Setup') {
       steps {
         bat '''
           echo ==== Create venv and install pip ====
@@ -26,7 +28,7 @@ pipeline {
       }
     }
 
-    stage('Test'){
+    stage('Test') {
       steps {
         withCredentials([
           usernamePassword(credentialsId: 'orangehrm-creds',
@@ -38,7 +40,7 @@ pipeline {
           bat """
             call .venv\\Scripts\\activate
             set HEADED=%HEADED%
-            set BROWSER=%BROWSER%    ^^^ NEW: exposes Jenkins choice to tests
+            set BROWSER=%BROWSER%
             echo HEADED=%HEADED%  BROWSER=%BROWSER%
             pytest -v --junitxml=test-results\\junit.xml ^
                    --html=report.html --self-contained-html
@@ -50,7 +52,7 @@ pipeline {
 
   post {
     always {
-      // Make sure a junit file exists so publishing never breaks the build display
+      // Ensure a junit file exists so publishing never errors
       bat 'if not exist test-results mkdir test-results & if not exist test-results\\junit.xml type NUL > test-results\\junit.xml'
       junit 'test-results/junit.xml'
       archiveArtifacts artifacts: 'report.html,test-results/**', fingerprint: true, onlyIfSuccessful: false
