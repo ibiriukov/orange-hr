@@ -14,17 +14,25 @@ ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
+def pytest_addoption(parser):
+    parser.addoption(
+        "--headed",
+        action="store_true",
+        help="Run browser in headed mode (show UI)"
+    )
+
 @pytest.fixture(scope="session")
-def browser():
+def browser(request):
+    # headed if CLI flag is passed OR env var HEADED=true
+    headed = request.config.getoption("--headed") or os.getenv("HEADED", "false").lower() == "true"
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=not headed)
         yield browser
         browser.close()
 
 @pytest.fixture
 def page(browser):
-    context = browser.new_context(
-        locale="en-US" )
+    context = browser.new_context(locale="en-US")
     page = context.new_page()
     yield page
     context.close()
