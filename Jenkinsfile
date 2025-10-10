@@ -3,6 +3,7 @@ pipeline {
 
   parameters {
     booleanParam(name: 'HEADED', defaultValue: false, description: 'Run browser in headed mode')
+    choice(name: 'BROWSER', choices: ['chromium','firefox','webkit'], description: 'Playwright browser')  // ← NEW
   }
 
   stages {
@@ -37,7 +38,8 @@ pipeline {
           bat """
             call .venv\\Scripts\\activate
             set HEADED=%HEADED%
-            echo HEADED=%HEADED%
+            set BROWSER=%BROWSER%    ^^^ NEW: exposes Jenkins choice to tests
+            echo HEADED=%HEADED%  BROWSER=%BROWSER%
             pytest -v --junitxml=test-results\\junit.xml ^
                    --html=report.html --self-contained-html
           """
