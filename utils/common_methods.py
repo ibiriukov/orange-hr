@@ -2,7 +2,7 @@ from playwright.sync_api import Page, expect
 
 
 def get_text_of_element(element):
-    return element.inner_text()
+    return element.inner_text().strip()
 
 def get_value_of_element(element):
     return element.input_value()
