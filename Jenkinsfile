@@ -1,7 +1,14 @@
 pipeline {
   agent any
+
+  parameters {
+    // ✓ unchecked = headless (CI default), checked = headed (show UI)
+    booleanParam(name: 'HEADED', defaultValue: false, description: 'Run browser in headed mode')
+  }
+
   stages {
     stage('Checkout'){ steps { checkout scm } }
+
     stage('Setup'){
       steps {
         bat '''
@@ -13,6 +20,7 @@ pipeline {
         '''
       }
     }
+
     stage('Test'){
       steps {
         withCredentials([
@@ -22,19 +30,23 @@ pipeline {
           string(credentialsId: 'orangehrm-base-url',
                  variable: 'ORANGE_BASE_URL')
         ]) {
-          bat '''
+          bat """
             call .venv\\Scripts\\activate
-            pytest -v --junitxml=test-results\\junit.xml ^
+            set "HEAD_FLAG="
+            if /I "%HEADED%"=="true" set "HEAD_FLAG=--headed"
+            echo HEADED=%HEADED%  (HEAD_FLAG=%HEAD_FLAG%)
+            pytest -v %HEAD_FLAG% --junitxml=test-results\\junit.xml ^
                    --html=report.html --self-contained-html
-          '''
+          """
         }
       }
     }
   }
+
   post {
     always {
       junit 'test-results/junit.xml'
-      archiveArtifacts artifacts: 'report.html,test-results/**', fingerprint: true
+      archiveArtifacts artifacts: 'report.html,test-results/**', fingerprint: true, onlyIfSuccessful: false
     }
   }
 }
