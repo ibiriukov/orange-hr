@@ -14,7 +14,7 @@ def test_go_to_pim(page, dashboard_page):
     assert pim_page.is_loaded()
     assert pim_page.get_text_of_breadcrumb() == "PIM"
 
-#@pytest.mark.parametrize("run", range(10))
+#@pytest.mark.parametrize("run", range(2))
 def test_add_employee(page, dashboard_page):
     emp_first_name, emp_last_name, emp_id = generate_employee_name()
     pim_page = dashboard_page.select_tab_in_side_panel("PIM")
