@@ -1,7 +1,7 @@
 # OrangeHR Test Automation Framework
 
 > **Overview**  
-A modular test automation suite built for the OrangeHR demo app using Python, Pytest, and Playwright. Highlights include clean architecture, shared state management, and CI/CD integration—ideal for showcasing real-world QA engineering skills.
+Automation framework for the OrangeHR demo application. Implements a modular Page Object Model and shared fixtures for UI coverage.
 > 
 > **Highlights**
 - Modular Page Object Model and shared fixtures
