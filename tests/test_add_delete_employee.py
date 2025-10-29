@@ -9,13 +9,14 @@ from utils.shared_state import save_value, load_value
 def test_login(page, dashboard_page):
     assert dashboard_page.get_text_of_breadcrumb() == "Dashboard"
 
+@pytest.mark.pim
 def test_go_to_pim(page, dashboard_page):
     pim_page=dashboard_page.select_tab_in_side_panel("PIM")
     assert pim_page.is_loaded()
     assert pim_page.get_text_of_breadcrumb() == "PIM"
 
-#@pytest.mark.parametrize("run", range(2))
-def test_add_employee(page, dashboard_page):
+@pytest.mark.parametrize("run", range(2))
+def test_add_employee(page, dashboard_page, run):
     emp_first_name, emp_last_name, emp_id = generate_employee_name()
     pim_page = dashboard_page.select_tab_in_side_panel("PIM")
     assert pim_page.is_loaded()
@@ -34,6 +35,7 @@ def test_add_employee(page, dashboard_page):
     assert employee_list_page.get_name_from_search_result("First (& Middle) Name") == emp_first_name
     assert employee_list_page.get_name_from_search_result("Last Name") == emp_last_name
 
+@pytest.mark.delete_employee
 def test_delete_employee(page, dashboard_page):
     emp_first_name, emp_last_name, emp_id = generate_employee_name()
     pim_page = dashboard_page.select_tab_in_side_panel("PIM")
