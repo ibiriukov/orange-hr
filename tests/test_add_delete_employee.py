@@ -71,14 +71,14 @@ def test_delete_employee(page, dashboard_page):
         time.sleep(2) # Used for testing purposes only
         employee_list_page.check_single_check_box_in_table(emp_first_name, "First (& Middle) Name")
         assert employee_list_page.click_delete_selected_btn()
-        time.sleep(1)  # Used for testing purposes only
+        time.sleep(1)  # Used for demo purposes only
         assert not employee_list_page.confirm_deletion()
-        time.sleep(1)  # Used for testing purposes only
+        time.sleep(1) # Used for demo purposes only
         employee_list_page.set_employee_name(emp_first_name)
         employee_list_page.click_search_btn()
         assert employee_list_page.get_number_of_table_rows() == 0
 
-    time.sleep(2)
+    time.sleep(2) # Used for demo purposes only
 
 
 
